@@ -1,0 +1,133 @@
+//Player Create Event
+//Some Basic Logic
+hsp = 0;
+vsp = 0;
+grv = 0.3;
+walksp = 4;
+
+//Player Step event
+
+
+ini_open("save.ini");
+ini_write_real("Scores", "Money", score);
+var highscore = ini_read_real("Scores:", "Highscore", 0);
+if score > highscore
+{
+	ini_write_real("Scores", "Highscore", score);
+}
+ini_close();
+
+instance_activate_object(oPlayer);
+#region //Get Player Movment
+
+
+
+	key_left = keyboard_check(vk_left); 
+	key_right = keyboard_check(vk_right);
+	key_jump = keyboard_check_pressed(vk_up);
+	key_jump_fw = keyboard_check(vk_up);
+	
+	
+	
+	Key_wall_jump_left = key_left && key_jump_fw;
+	Key_wall_jump_right = key_right && key_jump_fw;
+	
+
+
+#endregion
+
+#region //Calculate Movement
+var move = key_right - key_left;
+ 
+hsp = move * walksp;
+
+ vsp = vsp + grv;
+
+#endregion
+
+#region // Wall Jumps logic Extra
+//Wall Jump Right
+ if (place_meeting(x-1,y,oWall)) 
+ {
+	
+	vsp = 1.75;
+	 
+ }
+
+
+//Wall Jump Left
+if (place_meeting(x+1,y,oWall))
+ {
+	 
+	vsp = 1.75;
+	 
+}
+ #endregion
+
+#region //Jump logic
+ if (place_meeting(x,y+1,oWall)) && (key_jump)
+ {
+	 vsp = -12.65;
+	
+ }
+ 
+ 
+
+ #endregion
+
+#region // Wall Jumps logic
+//Wall Jump Right
+ if (place_meeting(x-1,y,oWall)) && (Key_wall_jump_left)
+ {
+	
+	vsp = -8.65;
+	 hsp = 50;
+ }
+
+
+//Wall Jump Left
+if (place_meeting(x+1,y,oWall)) && (Key_wall_jump_right)
+ {
+	 
+	 vsp = -8.65;
+	 hsp = -50;
+	 
+}
+ #endregion
+
+
+#region //Horizontal and Vertical Collisons
+
+
+if (place_meeting(x+hsp,y,oWall))
+{
+	while (!place_meeting(x+sign(hsp),y,oWall))
+	{
+		
+		x = x + sign(hsp);
+	
+	
+	}
+	hsp = 0;
+	
+}
+x = x + hsp;
+
+
+//Vertical Collison
+if (place_meeting(x,y+vsp,oWall))
+{
+	while (!place_meeting(x,y+sign(vsp),oWall))
+	{
+		y = y + sign(vsp);
+
+	
+	}
+	vsp = 0;
+	
+
+
+}
+y = y + vsp;
+
+
