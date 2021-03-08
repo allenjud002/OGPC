@@ -1,0 +1,282 @@
+
+//Draw GUI
+
+/// @desc Draw Shop
+#region //Draw Shop
+if (!shopOpen) exit;
+
+draw_set_font(Font1);
+draw_set_color(c_black);
+draw_set_alpha(0.5);
+draw_rectangle(0,0, guiWidth, guiHeight, 0);
+draw_set_alpha(0.8);
+draw_rectangle(menuMargin, 0 , menuMargin + menuWidth, guiHeight, 0);
+draw_set_alpha(1);
+draw_set_color(c_white);
+
+//Draw Menu Items
+for (var i = 0; i < itemCount; i ++) {
+	
+	//Get Item
+	var arr = items[| i];
+	var item = arr[0];
+	
+	
+	//Set Position
+	var _x = menuMargin + menuWidth/2;
+	 var _y = (guiHeight/2) +(i - selected) * 32;
+	 
+	 
+	 //Set Scale
+	 var s = 1;
+	 if (i == selected) item  = "> " + item + " <";
+	   //draw Item
+	   draw_set_halign(fa_center);
+	   draw_set_valign(fa_middle);
+	   draw_text_transformed(_x, _y, item, s, s, 0);
+	   draw_set_valign(fa_top);
+	   draw_set_halign(fa_left);
+}
+
+
+//get preveiw data
+var arr = items[| selected];
+var item = arr[0];
+var price = arr[1];
+var desc = arr[2];
+
+// set pos
+var _x = (menuMargin + menuWidth) + previewWidth/2;
+var _y = (guiHeight/2);
+
+//draw Preview Sprite
+var spr = asset_get_index(item);
+
+
+if (sprite_exists(spr)) {
+	var s = 2;
+	draw_sprite_ext(spr, 0, _x, _y, s, s, 0, -1, 1);
+	
+	
+}
+	
+draw_set_color(c_black);
+draw_set_valign(fa_bottom);
+
+
+//draw Description
+ 
+draw_set_font(Desc_Font);
+draw_set_color(c_white);
+ draw_set_halign(fa_center);
+draw_set_valign(fa_middle);
+draw_text(_x, _y + 80, desc);
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
+
+
+
+draw_text(menuMargin +menuWidth + 6, guiHeight/14, "Money: " + string(score));
+
+draw_set_valign(fa_bottom);
+draw_text(menuMargin +menuWidth + 4, guiHeight - 4, "Price: $" + string(price));
+
+
+draw_set_halign(fa_right);
+
+
+#endregion
+
+#region //Get Imput 
+if (item = "Cookie")
+{
+	if (keyboard_check(vk_enter))
+	{
+	 if ((score = price) or (score > price))
+	 {
+	 shopOpen = false;
+	 instance_activate_object(oPlayer);
+	 lives += 1;
+	 }
+	 
+	}
+	
+}
+
+if (item = "Spike_Imunity")
+{
+	if (keyboard_check(vk_enter))
+	{
+	 if (can_buy = true)
+	 {
+	 shopOpen = false;
+	 instance_activate_object(oPlayer);
+	 global.Damage = false;
+	 }
+	 else {
+		 can_buy = false;
+	 }
+	}
+}
+
+if (item = "Quit")
+{
+	if (keyboard_check(vk_enter))
+	{
+	game_end();
+	}
+}
+if (item = "Restart Game")
+{
+	if (keyboard_check(vk_enter))
+	{
+	game_restart();
+	}
+}
+
+
+if (item = "apple")
+{
+	if (keyboard_check(vk_enter))
+	{
+	 if (can_buy = true)
+	 {
+	 shopOpen = false;
+	 instance_activate_object(oPlayer);
+	 lives += 1;
+	 }
+	 else {
+		 can_buy = false;
+	 }
+	 
+	}
+	
+}
+
+if (item = "Money_boost")
+{
+	if (keyboard_check(vk_enter))
+	{
+	 if (can_buy = true)
+	 {
+	 shopOpen = false;
+	 instance_activate_object(oPlayer);
+	 global.MoneyBoost = true;
+	 }
+	 else {
+		 can_buy = false;
+	 }
+	}
+	
+}
+
+
+#endregion
+
+
+//Step Event:
+
+/// @desc Control Shop
+
+//open Shop Methond
+if (keyboard_check_pressed(ord("S"))) {
+	
+	shopOpen = true;
+	global.shop = true;
+	instance_deactivate_object(oPlayer);
+	
+} else if (shopOpen) && (keyboard_check_pressed(vk_space)) {
+	
+	shopOpen = false;
+	global.shop = false;
+	instance_activate_object(oPlayer);
+}
+
+
+//Shop is open
+if (shopOpen) {
+	
+		
+	
+		if (keyboard_check_pressed(vk_down)) {
+		
+		selected ++;
+		if (selected == itemCount) selected = 0;
+		
+	}
+	
+		if (keyboard_check_pressed(vk_up)) {
+		
+		selected -- ;
+		if (selected < 0) selected = itemCount - 1;
+		
+	}
+		//Buy a Item
+		var arr = items[| selected];
+		var item = arr[0];
+		var price = arr[1];
+		
+		
+		//Buy a Item
+		var arr = items[| selected];
+		var item = arr[0];
+		var price = arr[1];
+		if (keyboard_check_pressed(vk_enter) && (can_buy = true)) {
+		
+	
+		//add item to player
+		
+		ds_list_add(global.inv,item);
+		score -= price;
+		
+		
+	}
+	if score < 0
+	{
+		can_buy = false;
+		score = 0;
+		
+
+//Create Event:
+
+#region
+//shop Variables
+shopOpen = false;
+global.shop = false;
+
+global.money = score;
+global.inv = ds_list_create();
+
+selected = 0;
+
+//Items
+items = ds_list_create();
+
+
+
+ds_list_add(items, ["Cookie", 350, "Heals 2 life"]);
+ds_list_add(items, ["apple", 250, "Heals 1 life"]);
+ds_list_add(items, ["Spike_Imunity", 300, "This makes you not take any damage from spikes"]);
+ds_list_add(items, ["Money_boost", 1000, "adds $50 every coin"]);
+ds_list_add(items, ["Quit", 0, "Press enter to exit"]);
+ds_list_add(items, ["Restart Game", 0, "Press enter to exit"]);
+itemCount = ds_list_size(items);
+
+
+//GUI Properties
+display_set_gui_size(1280,720);
+guiWidth = display_get_gui_width();
+guiHeight = display_get_gui_height();
+
+menuWidth = guiWidth * 0.3;
+menuMargin = guiWidth * 0.1;
+
+
+previewWidth = (guiWidth - (menuWidth + menuMargin));
+
+can_buy = true;
+
+#endregion
+
+
+
