@@ -1,0 +1,41 @@
+Pre_Draw:
+
+if (place_meeting(x,y,oWall))
+{
+	instance_destroy();
+}
+
+if (place_meeting(x,y,oPlayer))
+{
+	instance_destroy();
+}
+
+
+STAFF:
+
+STEP:
+x = oPlayer.x;
+y = oPlayer.y+10;
+
+image_angle = point_direction(x,y,mouse_x,mouse_y);
+
+Fireingdelay = Fireingdelay - 1;
+
+if (keyboard_check(vk_enter)) && (Fireingdelay < 0)
+{
+	Fireingdelay = 5;
+	global.GunShot = true;
+	
+	with(instance_create_layer(x,y,"Player",oLaser))
+	{
+		speed = 25;
+		direction = other.image_angle;
+		image_angle = direction;
+		global.GunShot = false;
+	}
+}
+
+
+Create:
+
+Fireingdelay = 0;
